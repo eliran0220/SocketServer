@@ -14,15 +14,11 @@ class RedisServer {
     io;
     port;
     emitter;
-    connections;
-    connections_size;
     constructor() {
         this.pub_client = null;
         this.sub_client = null;
         this.io = null;
         this.port = 3000;
-        this.connections = [];
-        this.connections_size = 0;
         this.emitter = new redis_emitter_1.Emitter(null);
     }
     intializeServer = async () => {
@@ -46,9 +42,7 @@ class RedisServer {
             console.log(`${socket.id} has been connected!`);
             const emitter = this.emitter.in(socket.id);
             const response = { message: "connected" };
-            emitter.emit("connected", response);
-            const rooms = await this.io.of('/').adapter.allRooms();
-            console.log(rooms);
+            emitter.emit("data", response);
             await this.handleRequests(socket);
         });
     };
@@ -66,34 +60,39 @@ class RedisServer {
             await this.handleBlast(data);
         });
         socket.on("disconnect", async (data) => {
+            console.log("onDisconnect");
             await this.handleDisconnect(data, socket);
         });
     };
     handleSpin = async (data) => {
-        const rooms = await this.io.of('/').adapter.allRooms();
+        console.log("rooms");
+        const rooms = [...await this.io.of('/').adapter.allRooms()];
         const random_connection = utilities_1.default.getRandomConnection(rooms);
         const response = { message: data.message };
         const emitter = this.emitter.in(random_connection);
-        emitter.emit("spin", response);
+        emitter.emit("data", response);
     };
     handleWild = async (data) => {
-        const rooms = await this.io.of('/').adapter.allRooms();
-        const response = { message: data.message };
         const random = Number(data.random_number);
+        const response = { message: data.message };
         if (random <= 0) {
             // in case negative number was provided, no emit
             return;
         }
-        else if (random === 1) {
+        const rooms = [...await this.io.of('/').adapter.allRooms()];
+        if (random === 1) {
             const random_connection = utilities_1.default.getRandomConnection(rooms);
             const emitter = this.emitter.in(random_connection);
-            emitter.emit("wild", response);
+            emitter.emit("data", response);
+            return;
         }
-        else if (random >= this.connections_size) {
+        else if (random >= rooms.length) {
             // in case number bigger than connections size was provided, emit to all
-            this.emitter.emit("blast", response);
+            this.emitter.emit("data", response);
+            return;
         }
         else {
+            const rooms = [...await this.io.of('/').adapter.allRooms()];
             const cloned_connectios = [...rooms];
             let left = Number(data.random_number);
             const chosen_connections = utilities_1.default.getRandomConnections(left, cloned_connectios);
@@ -104,17 +103,13 @@ class RedisServer {
         let wildEmitter = null;
         for (const connection of chosen_connections) {
             wildEmitter = this.emitter.in(connection);
-            wildEmitter.emit("spin", response);
+            wildEmitter.emit("data", response);
         }
     };
     handleBlast = async (data) => {
-        console.log("Total connections:", this.connections_size);
-        this.emitter.emit("blast", data);
+        this.emitter.emit("data", data);
     };
     handleDisconnect = async (data, socket) => {
-        console.log("Total connections:", this.connections_size);
-        this.connections = this.connections.filter(connection => connection !== socket);
-        this.connections_size--;
         console.log(`${socket.id} has been disconnected.`);
     };
 }

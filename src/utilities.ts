@@ -1,5 +1,4 @@
-import { Socket } from "socket.io";
-
+import Message from './models';
 class Utilities {
     getRandomNumber = (connections_size : number) => {
         const random_index =  this.generateRandomNumberLimits(0,connections_size);
@@ -29,6 +28,12 @@ class Utilities {
     generateRandomNumberLimits = (min : number, max : number) => {
         return Math.floor(Math.random() * (max - min + 1) ) + min;
       }
+
+    validateRequest = (data: Message) : void => {
+        if (!data.message) {
+            data.message = "No message was supplied, so this is a random one!";
+        }
+    }
 }
 
 const utilites = new Utilities();

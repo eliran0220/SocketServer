@@ -52,14 +52,17 @@ class RedisServer {
     handleRequests = async (socket: Socket) : Promise<void> => {
         socket.on("spin", async (data : Message)  => {
             console.log("onSpin");
+            utilites.validateRequest(data);
             await this.handleSpin(data);
         });
         socket.on("wild", async (data : Message) => {
             console.log("onWild");
+            utilites.validateRequest(data);
             await this.handleWild(data);
         });
         socket.on("blast", async (data : Message) => {
             console.log("onBlast");
+            utilites.validateRequest(data);
             await this.handleBlast(data);
         })
 
@@ -79,12 +82,15 @@ class RedisServer {
     }
 
     handleWild = async (data: Message) : Promise<void> => {
-        const random = Number(data.random_number);
         const response : Message = {message : data.message}
-
-        if (random <= 0) {
-            // in case negative number was provided, no emit
+        console.log(Number.isFinite(data.random_number))
+        if (!data.random_number || data.random_number === 0) {
             return;
+        }
+        let random : number = 0;
+        if (!Number.isFinite(data.random_number)) {
+            // put default value 1 in case the random_number is not in number value, simple check
+            random = 1;
         }
         const rooms = [...await this.io.of('/').adapter.allRooms()]
          if (random === 1) {

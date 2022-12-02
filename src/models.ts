@@ -1,6 +1,6 @@
 interface Message {
     message: string;
-    random_number? :string;
+    random_number? :number;
 }
 
 
