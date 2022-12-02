@@ -83,7 +83,6 @@ class RedisServer {
 
     handleWild = async (data: Message) : Promise<void> => {
         const response : Message = {message : data.message}
-        console.log(Number.isFinite(data.random_number))
         if (!data.random_number || data.random_number === 0) {
             return;
         }
