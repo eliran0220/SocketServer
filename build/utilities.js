@@ -17,6 +17,7 @@ class Utilities {
         while (left !== 0) {
             const random_index = utilites.getRandomNumber(cloned_connections.length - 1);
             chosen_connections.push(cloned_connections[random_index]);
+            console.log(`Chosen connections : ${chosen_connections}`);
             cloned_connections.splice(random_index, 1);
             left--;
         }
@@ -25,6 +26,14 @@ class Utilities {
     };
     generateRandomNumberLimits = (min, max) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    validateRequest = (data) => {
+        if (!data.message) {
+            data.message = "No message was supplied, so this is a random one!";
+        }
+        if (typeof (data.message) !== "string") {
+            data.message = "This is a random message!";
+        }
     };
 }
 const utilites = new Utilities();

@@ -21,7 +21,6 @@ class Utilities {
             cloned_connections.splice(random_index,1);
             left--;
         }
-        console.log(`Chosen connections : ${chosen_connections}`)
         return chosen_connections;
     }
 
@@ -32,6 +31,9 @@ class Utilities {
     validateRequest = (data: Message) : void => {
         if (!data.message) {
             data.message = "No message was supplied, so this is a random one!";
+        }
+        if (typeof(data.message) !== "string") {
+            data.message = "This is a random message!";
         }
     }
 }

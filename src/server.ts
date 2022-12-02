@@ -109,8 +109,6 @@ class RedisServer {
             const chosen_connections = utilites.getRandomConnections(left,cloned_connectios);
             this.emitChosenConnections(chosen_connections,response);
         }
-
-    
     }
 
     emitChosenConnections = async (chosen_connections : string[], response : Message) : Promise<void> => {
