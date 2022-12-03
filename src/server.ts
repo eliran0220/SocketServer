@@ -40,6 +40,7 @@ class RedisServer {
     }
 
     initIncomingConnection = async () : Promise<void> => {
+        try {
         this.io.on("connection",async (socket : Socket)=>{
             console.log(`${socket.id} has been connected!`);
             const emitter = this.emitter.in(socket.id);
@@ -47,9 +48,13 @@ class RedisServer {
             emitter.emit("data",response);
             await this.handleRequests(socket);
         });
+    } catch (err) {
+        console.log("err at connecting socket");
+        }
     }
 
     handleRequests = async (socket: Socket) : Promise<void> => {
+        try {
         socket.on("spin", async (data : Message)  => {
             console.log("onSpin");
             utilites.validateRequest(data);
@@ -69,19 +74,28 @@ class RedisServer {
         socket.on("disconnect", async (data:any) => {
             console.log("onDisconnect");
             await this.handleDisconnect(data,socket);
-        })
+        }) 
+        }
+        catch (err) {
+            console.log(err)
+        }
     }
 
     handleSpin = async (data : Message) : Promise<void> => {
+        try {
         console.log("rooms")
         const rooms = [...await this.io.of('/').adapter.allRooms()];
         const random_connection = utilites.getRandomConnection(rooms);
         const response : Message = {message : data.message}
         const emitter = this.emitter.in(random_connection);
         emitter.emit("data",response);
+        } catch (err) {
+            console.log("err att spin");
+        }
     }
 
     handleWild = async (data: Message) : Promise<void> => {
+        try {
         const response : Message = {message : data.message}
         if (!data.random_number || data.random_number === 0) {
             return;
@@ -109,18 +123,29 @@ class RedisServer {
             const chosen_connections = utilites.getRandomConnections(left,cloned_connectios);
             this.emitChosenConnections(chosen_connections,response);
         }
+    } catch (err) {
+        console.log("err at wild")
+    }
     }
 
     emitChosenConnections = async (chosen_connections : string[], response : Message) : Promise<void> => {
+        try {
         let wildEmitter = null;
         for (const connection of chosen_connections) {
             wildEmitter = this.emitter.in(connection);
             wildEmitter.emit("data",response);
         }
+    } catch (err) {
+        console.log("err at emitChosenConnections")
+    }
     }
 
     handleBlast = async (data:Message) : Promise<void> => {
+        try {
         this.emitter.emit("data",data);
+        } catch (err) {
+            console.log("err at blast")
+        }
     }
 
     handleDisconnect = async (data : any, socket: Socket) : Promise<void> => {

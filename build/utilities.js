@@ -17,11 +17,9 @@ class Utilities {
         while (left !== 0) {
             const random_index = utilites.getRandomNumber(cloned_connections.length - 1);
             chosen_connections.push(cloned_connections[random_index]);
-            console.log(`Chosen connections : ${chosen_connections}`);
             cloned_connections.splice(random_index, 1);
             left--;
         }
-        console.log(`Chosen connections : ${chosen_connections}`);
         return chosen_connections;
     };
     generateRandomNumberLimits = (min, max) => {
