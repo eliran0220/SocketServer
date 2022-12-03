@@ -29,7 +29,7 @@ class RedisServer {
             await this.sub_client.connect();
             this.emitter = new Emitter(this.pub_client);
             this.io.adapter(createAdapter(this.pub_client, this.sub_client));
-            this.io.listen(this.port);
+            this.io.listen(this.port,{perMessageDeflate: {threshold : 1024}});
             await this.initIncomingConnection();
         } 
         catch (err) 
@@ -151,6 +151,7 @@ class RedisServer {
     handleDisconnect = async (data : any, socket: Socket) : Promise<void> => {
         console.log(`${socket.id} has been disconnected.`)
     }
+
 
 }
 

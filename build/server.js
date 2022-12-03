@@ -30,7 +30,7 @@ class RedisServer {
             await this.sub_client.connect();
             this.emitter = new redis_emitter_1.Emitter(this.pub_client);
             this.io.adapter((0, redis_adapter_1.createAdapter)(this.pub_client, this.sub_client));
-            this.io.listen(this.port);
+            this.io.listen(this.port, { perMessageDeflate: { threshold: 1024 } });
             await this.initIncomingConnection();
         }
         catch (err) {
